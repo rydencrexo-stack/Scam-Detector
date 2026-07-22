@@ -151,7 +151,3 @@ Always verify sensitive requests independently before sharing personal informati
 Designed and developed as an AI-powered cybersecurity project focused on phishing awareness and scam detection.
 
 ---
-
-## License
-
-This project is licensed under the MIT License.
