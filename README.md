@@ -111,6 +111,11 @@ The interface includes:
 
 ---
 
+## Live Preview
+
+https://scam-detector.netlify.app/
+---
+
 ## Project Structure
 
 ```
