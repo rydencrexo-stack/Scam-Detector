@@ -1,5 +1,3 @@
-# Scam-Detector
-AI-powered Scam &amp; Phishing Investigation Tool that analyzes messages, emails, and websites with an interactive case-file themed interface.
 # 🕵️ Scam & Phishing Investigation Unit
 
 An AI-powered phishing detection web application designed as an interactive digital investigation case file.
