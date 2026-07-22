@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Case File — Scam &amp; Phishing Investigation Unit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --paper: #EDE6D6;
+            --paper-card: #F6F1E5;
+            --paper-dark: #E2D9C3;
+            --ink: #221F1A;
+            --ink-soft: #5B564C;
+            --ink-faint: #8B8577;
+            --manila: #B98F4A;
+            --manila-dark: #8C6A32;
+            --safe: #2F6B4F;
+            --safe-bg: #E3EDE5;
+            --caution: #A9691F;
+            --caution-bg: #F3E6D2;
+            --danger: #A13A2E;
+            --danger-bg: #F2DFDA;
+            --line: rgba(34, 31, 26, 0.16);
+            --line-strong: rgba(34, 31, 26, 0.32);
+            --shadow: 2px 3px 0 rgba(34, 31, 26, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background:
+                repeating-linear-gradient(0deg, rgba(34, 31, 26, 0.025) 0px, rgba(34, 31, 26, 0.025) 1px, transparent 1px, transparent 3px),
+                var(--paper);
+            color: var(--ink);
+            font-family: 'Source Serif 4', Georgia, serif;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: var(--manila);
+            color: #fff;
+        }
+
+        .wrap {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 0 24px 60px;
+        }
+
+        /* ---------- Navbar ---------- */
+        nav.topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--line-strong);
+        }
+
+        .brand-mark {
+            font-family: 'Special Elite', monospace;
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            color: var(--ink-soft);
+        }
+
+        .brand-mark b {
+            color: var(--ink);
+        }
+
+        .nav-actions {
+            position: relative;
+        }
+
+        .history-btn {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            background: transparent;
+            color: var(--ink-soft);
+            border: 1px solid var(--line-strong);
+            padding: 8px 14px;
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-btn:hover {
+            border-color: var(--ink);
+            color: var(--ink);
+        }
+
+        .history-btn .count {
+            background: var(--manila);
+            color: #fff;
+            font-size: 10.5px;
+            padding: 1px 6px;
+            border-radius: 8px;
+        }
+
+        .history-panel {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 340px;
+            max-height: 420px;
+            overflow-y: auto;
+            background: var(--paper-card);
+            border: 1px solid var(--line-strong);
+            box-shadow: var(--shadow);
+            z-index: 20;
+            padding: 6px;
+        }
+
+        .history-panel.open {
+            display: block;
+        }
+
+        .history-panel-head {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10.5px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            padding: 10px 10px 8px;
+            border-bottom: 1px dashed var(--line-strong);
+        }
+
+        .history-empty {
+            padding: 22px 14px;
+            font-size: 13px;
+            color: var(--ink-faint);
+            text-align: center;
+            font-style: italic;
+        }
+
+        .history-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 10px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:hover {
+            background: var(--paper-dark);
+        }
+
+        .history-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .history-dot.safe {
+            background: var(--safe);
+        }
+
+        .history-dot.caution {
+            background: var(--caution);
+        }
+
+        .history-dot.danger {
+            background: var(--danger);
+        }
+
+        .history-text {
+            min-width: 0;
+        }
+
+        .history-title {
+            font-size: 13.5px;
+            margin: 0 0 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10.5px;
+            color: var(--ink-faint);
+            margin: 0;
+        }
+
+        .history-clear {
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--ink-faint);
+            background: none;
+            border: none;
+            padding: 10px 0 4px;
+            cursor: pointer;
+        }
+
+        .history-clear:hover {
+            color: var(--danger);
+        }
+
+        /* ---------- Header / folder tab ---------- */
+        header {
+            padding: 38px 0 22px;
+            border-bottom: 3px solid var(--ink);
+            position: relative;
+            margin-bottom: 34px;
+        }
+
+        .tab {
+            display: inline-block;
+            background: var(--ink);
+            color: var(--paper);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            padding: 6px 14px;
+            border-radius: 3px 3px 0 0;
+            margin-bottom: 14px;
+        }
+
+        h1 {
+            font-family: 'Special Elite', 'Courier New', monospace;
+            font-weight: 400;
+            font-size: clamp(28px, 4.4vw, 44px);
+            letter-spacing: 0.01em;
+            margin: 0 0 8px;
+            line-height: 1.15;
+        }
+
+        .subhead {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 14px;
+        }
+
+        .tagline {
+            color: var(--ink-soft);
+            font-size: 16px;
+            max-width: 52ch;
+            margin: 0;
+        }
+
+        .case-no {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--ink-soft);
+            text-align: right;
+            line-height: 1.6;
+            white-space: nowrap;
+        }
+
+        .case-no b {
+            color: var(--ink);
+        }
+
+        /* ---------- Layout ---------- */
+        .grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (max-width:880px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--paper-card);
+            border: 1px solid var(--line-strong);
+            box-shadow: var(--shadow);
+            padding: 26px 26px 28px;
+            position: relative;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            width: 34px;
+            height: 14px;
+            background: linear-gradient(180deg, rgba(185, 143, 74, 0.55), rgba(185, 143, 74, 0.35));
+            border: 1px solid rgba(140, 106, 50, 0.5);
+            transform: rotate(2deg);
+            opacity: 0.7;
+        }
+
+        .panel-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--manila-dark);
+            margin: 0 0 4px;
+        }
+
+        .panel-title {
+            font-family: 'Special Elite', monospace;
+            font-size: 20px;
+            margin: 0 0 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px dashed var(--line-strong);
+        }
+
+        .panel-title-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 14px;
+            border-bottom: 1px dashed var(--line-strong);
+            margin-bottom: 20px;
+        }
+
+        .panel-title-inline {
+            font-family: 'Special Elite', monospace;
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .new-case-btn {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11.5px;
+            letter-spacing: 0.05em;
+            background: var(--paper);
+            color: var(--ink-soft);
+            border: 1px solid var(--line-strong);
+            padding: 7px 12px;
+            border-radius: 2px;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .new-case-btn:hover {
+            border-color: var(--ink);
+            color: var(--ink);
+        }
+
+        /* ---------- Intake form ---------- */
+        .field {
+            margin-bottom: 18px;
+        }
+
+        .field label {
+            display: block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11.5px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin-bottom: 8px;
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12.5px;
+            padding: 8px 14px;
+            border: 1px solid var(--line-strong);
+            background: var(--paper);
+            color: var(--ink-soft);
+            cursor: pointer;
+            border-radius: 2px;
+            transition: background .15s ease, color .15s ease, border-color .15s ease;
+        }
+
+        .chip:hover {
+            border-color: var(--ink);
+            color: var(--ink);
+        }
+
+        .chip.active {
+            background: var(--ink);
+            border-color: var(--ink);
+            color: var(--paper);
+        }
+
+        input[type=text],
+        textarea {
+            width: 100%;
+            font-family: 'Source Serif 4', serif;
+            font-size: 15px;
+            color: var(--ink);
+            background: var(--paper);
+            border: 1px solid var(--line-strong);
+            border-radius: 2px;
+            padding: 12px 13px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        input[type=text]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--ink);
+            box-shadow: 0 0 0 2px rgba(34, 31, 26, 0.08);
+        }
+
+        textarea {
+            min-height: 190px;
+        }
+
+        ::placeholder {
+            color: var(--ink-faint);
+            font-style: italic;
+        }
+
+        .hint {
+            font-size: 12.5px;
+            color: var(--ink-faint);
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        .submit-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 22px;
+        }
+
+        button.submit {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: var(--ink);
+            color: var(--paper);
+            border: 1px solid var(--ink);
+            padding: 13px 22px;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: transform .1s ease, background .15s ease;
+        }
+
+        button.submit:hover {
+            background: #3a352c;
+        }
+
+        button.submit:active {
+            transform: scale(0.98);
+        }
+
+        button.submit:disabled {
+            opacity: 0.5;
+            cursor: progress;
+        }
+
+        .error-note {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12.5px;
+            color: var(--danger);
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* ---------- Report panel ---------- */
+        .report-empty {
+            text-align: center;
+            padding: 56px 20px 40px;
+            color: var(--ink-faint);
+        }
+
+        .report-empty i {
+            font-style: normal;
+            display: block;
+            font-family: 'Special Elite', monospace;
+            font-size: 15px;
+            color: var(--ink-soft);
+            margin-top: 14px;
+        }
+
+        .folder-icon {
+            width: 52px;
+            height: 40px;
+            margin: 0 auto;
+            border: 2px solid var(--ink-faint);
+            border-top: none;
+            position: relative;
+            border-radius: 0 0 3px 3px;
+        }
+
+        .folder-icon::before {
+            content: '';
+            position: absolute;
+            top: -9px;
+            left: 0;
+            width: 22px;
+            height: 9px;
+            border: 2px solid var(--ink-faint);
+            border-bottom: none;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .scanning {
+            display: none;
+            padding: 30px 4px 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--ink-soft);
+        }
+
+        .scanning .line {
+            height: 9px;
+            background: linear-gradient(90deg, var(--line-strong), var(--paper-dark), var(--line-strong));
+            background-size: 200% 100%;
+            animation: scanbar 1.3s infinite linear;
+            margin-bottom: 12px;
+            border-radius: 1px;
+        }
+
+        .scanning .line:nth-child(2) {
+            width: 82%;
+            animation-delay: .15s;
+        }
+
+        .scanning .line:nth-child(3) {
+            width: 60%;
+            animation-delay: .3s;
+        }
+
+        @keyframes scanbar {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .scanning p {
+            margin: 16px 0 0;
+        }
+
+        .result {
+            display: none;
+        }
+
+        /* stamp */
+        .stamp-wrap {
+            display: flex;
+            justify-content: center;
+            padding: 6px 0 26px;
+        }
+
+        .stamp {
+            font-family: 'Special Elite', monospace;
+            font-size: clamp(20px, 3.4vw, 27px);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 14px 26px;
+            border: 5px double currentColor;
+            border-radius: 6px;
+            display: inline-block;
+            transform: rotate(-6deg) scale(0.4);
+            opacity: 0;
+            animation: stampdown .45s cubic-bezier(.2, 1.4, .4, 1) forwards;
+            animation-delay: .15s;
+            text-align: center;
+            mix-blend-mode: multiply;
+        }
+
+        .stamp.safe {
+            color: var(--safe);
+        }
+
+        .stamp.caution {
+            color: var(--caution);
+        }
+
+        .stamp.danger {
+            color: var(--danger);
+        }
+
+        @keyframes stampdown {
+            0% {
+                transform: rotate(-6deg) scale(2.4);
+                opacity: 0;
+            }
+
+            60% {
+                transform: rotate(-4deg) scale(0.94);
+                opacity: 1;
+            }
+
+            80% {
+                transform: rotate(-5deg) scale(1.04);
+            }
+
+            100% {
+                transform: rotate(-4.5deg) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .meter-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 0 0 22px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+        }
+
+        .meter {
+            flex: 1;
+            height: 10px;
+            background: var(--paper-dark);
+            border: 1px solid var(--line-strong);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            transition: width .8s ease .3s;
+            border-radius: 5px;
+        }
+
+        .meter-fill.safe {
+            background: var(--safe);
+        }
+
+        .meter-fill.caution {
+            background: var(--caution);
+        }
+
+        .meter-fill.danger {
+            background: var(--danger);
+        }
+
+        .meter-label {
+            color: var(--ink-soft);
+            white-space: nowrap;
+        }
+
+        .headline {
+            font-family: 'Special Elite', monospace;
+            font-size: 19px;
+            margin: 0 0 12px;
+        }
+
+        .summary {
+            font-size: 15.5px;
+            line-height: 1.65;
+            color: var(--ink);
+            margin: 0 0 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed var(--line-strong);
+        }
+
+        .flags-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--manila-dark);
+            margin: 0 0 14px;
+        }
+
+        .flag-card {
+            background: var(--paper);
+            border: 1px solid var(--line-strong);
+            border-left: 4px solid var(--ink-faint);
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .flag-card.danger {
+            border-left-color: var(--danger);
+        }
+
+        .flag-card.caution {
+            border-left-color: var(--caution);
+        }
+
+        .flag-card.safe {
+            border-left-color: var(--safe);
+        }
+
+        .flag-title {
+            font-weight: 600;
+            font-size: 14.5px;
+            margin: 0 0 4px;
+        }
+
+        .flag-detail {
+            font-size: 14px;
+            color: var(--ink-soft);
+            margin: 0;
+            line-height: 1.55;
+        }
+
+        .pin {
+            position: absolute;
+            top: -7px;
+            left: 14px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--manila);
+            border: 1px solid var(--manila-dark);
+        }
+
+        .recommendation {
+            margin-top: 22px;
+            padding: 16px 17px;
+            background: var(--paper-dark);
+            border: 1px solid var(--line-strong);
+            font-size: 14.5px;
+            line-height: 1.6;
+        }
+
+        .recommendation b {
+            display: block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            color: var(--ink-soft);
+        }
+
+        footer {
+            margin-top: 44px;
+            padding-top: 18px;
+            border-top: 1px solid var(--line);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11.5px;
+            color: var(--ink-faint);
+            line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <nav class="topbar">
+            <span class="brand-mark">Scam &amp; Phishing Investigation Unit — <b>Records Office</b></span>
+            <div class="nav-actions">
+                <button class="history-btn" id="history-btn">
+                    <span>Case history</span>
+                    <span class="count" id="history-count">0</span>
+                </button>
+                <div class="history-panel" id="history-panel">
+                    <p class="history-panel-head">Previously investigated</p>
+                    <div id="history-list">
+                        <p class="history-empty">No past cases yet. Closed cases will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <header>
+            <span class="tab">FILE OPEN</span>
+            <div class="subhead">
+                <div>
+                    <h1>Scam &amp; Phishing Investigation Unit</h1>
+                    <p class="tagline">Submit a message, email, or website as evidence. The unit examines it for the
+                        fingerprints of a scam and files a report.</p>
+                </div>
+                <div class="case-no">
+                    CASE NO. <b id="case-no">—</b><br>
+                    STATUS: <b id="case-status">AWAITING EVIDENCE</b>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid">
+
+            <!-- INTAKE -->
+            <div class="panel">
+                <div class="panel-title-row">
+                    <div>
+                        <p class="panel-label">Evidence intake</p>
+                        <h2 class="panel-title-inline">Submit for examination</h2>
+                    </div>
+                    <button class="new-case-btn" id="new-case-btn">+ New case</button>
+                </div>
+
+                <div class="field">
+                    <label>Evidence type</label>
+                    <div class="chip-row" id="type-chips">
+                        <div class="chip active" data-type="Text message">Text message</div>
+                        <div class="chip" data-type="Email">Email</div>
+                        <div class="chip" data-type="Website">Website</div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label id="source-label">Sender phone number (optional)</label>
+                    <input type="text" id="source" placeholder="e.g. +1 (302) 555-0176">
+                </div>
+
+                <div class="field">
+                    <label id="content-label">Paste the message</label>
+                    <textarea id="content" placeholder="Paste the full text here, exactly as received..."></textarea>
+                    <p class="hint">Include everything: greeting, links, sign-off. Small details are often the biggest
+                        tells.</p>
+                </div>
+
+                <div class="submit-row">
+                    <button class="submit" id="analyze-btn">Open case &amp; analyze</button>
+                </div>
+                <p class="error-note" id="error-note"></p>
+            </div>
+
+            <!-- REPORT -->
+            <div class="panel">
+                <p class="panel-label">Case report</p>
+                <h2 class="panel-title">Findings</h2>
+
+                <div class="report-empty" id="report-empty">
+                    <div class="folder-icon"></div>
+                    <i>No evidence submitted yet.</i>
+                </div>
+
+                <div class="scanning" id="scanning">
+                    <div class="line"></div>
+                    <div class="line"></div>
+                    <div class="line"></div>
+                    <p>Cross-referencing known scam patterns...</p>
+                </div>
+
+                <div class="result" id="result">
+                    <div class="stamp-wrap">
+                        <div class="stamp" id="stamp"></div>
+                    </div>
+
+                    <div class="meter-row">
+                        <span class="meter-label">RISK SCORE</span>
+                        <div class="meter">
+                            <div class="meter-fill" id="meter-fill"></div>
+                        </div>
+                        <span class="meter-label" id="score-label">0/100</span>
+                    </div>
+
+                    <h3 class="headline" id="headline"></h3>
+                    <p class="summary" id="summary"></p>
+
+                    <p class="flags-label">Evidence markers</p>
+                    <div id="flags"></div>
+
+                    <div class="recommendation">
+                        <b>Recommended action</b>
+                        <span id="recommendation"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            This unit is an AI assistant, not a certified fraud examiner. Treat every finding as guidance, not proof —
+            when money, credentials, or personal data are on the line, verify independently before acting.<br><br>
+            Case file system designed and built by Atharva Abhijit Deshmukh.
+        </footer>
+    </div>
+
+    <script>
+        const typeChips = document.querySelectorAll('#type-chips .chip');
+        const sourceLabel = document.getElementById('source-label');
+        const sourceInput = document.getElementById('source');
+        const contentLabel = document.getElementById('content-label');
+        const contentInput = document.getElementById('content');
+        let currentType = 'Text message';
+
+        const labelMap = {
+            'Text message': { source: 'Sender phone number (optional)', sourcePh: 'e.g. +1 (302) 555-0176', content: 'Paste the message', contentPh: 'Paste the full text here, exactly as received...' },
+            'Email': { source: 'Sender email address (optional)', sourcePh: 'e.g. security@paypa1-support.com', content: 'Paste the email', contentPh: 'Paste subject line and full body, including any links...' },
+            'Website': { source: 'Web address (URL)', sourcePh: 'e.g. https://login-secure-appleid.com', content: 'Paste the page content', contentPh: 'Paste the visible text of the page, any forms it asks you to fill in, and what it claims to be...' }
+        };
+
+        typeChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                typeChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                currentType = chip.dataset.type;
+                const l = labelMap[currentType];
+                sourceLabel.textContent = l.source;
+                sourceInput.placeholder = l.sourcePh;
+                contentLabel.textContent = l.content;
+                contentInput.placeholder = l.contentPh;
+            });
+        });
+
+        function makeCaseNumber() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const seq = String(Math.floor(Math.random() * 900) + 100);
+            return `${y}-${m}${day}-${seq}`;
+        }
+        let activeCaseNo = makeCaseNumber();
+        document.getElementById('case-no').textContent = activeCaseNo;
+
+        const btn = document.getElementById('analyze-btn');
+        const errorNote = document.getElementById('error-note');
+        const reportEmpty = document.getElementById('report-empty');
+        const scanning = document.getElementById('scanning');
+        const result = document.getElementById('result');
+        const caseStatus = document.getElementById('case-status');
+
+        btn.addEventListener('click', runAnalysis);
+
+        async function runAnalysis() {
+            const content = contentInput.value.trim();
+            errorNote.style.display = 'none';
+            if (!content) {
+                errorNote.textContent = 'Evidence field is empty — paste the message, email, or page content first.';
+                errorNote.style.display = 'block';
+                return;
+            }
+
+            activeCaseNo = makeCaseNumber();
+            document.getElementById('case-no').textContent = activeCaseNo;
+
+            btn.disabled = true;
+            btn.textContent = 'Analyzing...';
+            reportEmpty.style.display = 'none';
+            result.style.display = 'none';
+            scanning.style.display = 'block';
+            caseStatus.textContent = 'UNDER REVIEW';
+
+            const source = sourceInput.value.trim();
+
+            const systemPrompt = `You are a fraud and phishing analyst. You will be given evidence (a text message, email, or website content) and must assess how likely it is to be a phishing attempt or scam.
+
+Respond with ONLY a raw JSON object, no markdown fences, no preamble, no commentary. Use exactly this shape:
+
+{
+  "verdict": "safe" | "caution" | "danger",
+  "score": <integer 0-100, where 100 is almost certainly a scam>,
+  "headline": "<short 4-8 word case-file style headline of the finding>",
+  "summary": "<2-4 sentence plain-English explanation of the overall assessment>",
+  "red_flags": [
+    { "title": "<short flag name, 2-6 words>", "detail": "<1-2 sentence explanation of why this is suspicious, or why it's actually fine if verdict is safe>" }
+  ],
+  "recommendation": "<1-2 sentence direct, practical advice on what the person should do next>"
+}
+
+Guidelines:
+- Look for urgency and pressure tactics, threats, requests for money/gift cards/crypto, mismatched or lookalike domains and sender addresses, generic greetings, spelling and grammar irregularities typical of scams, suspicious links, requests for passwords/OTPs/personal or financial info, unexpected attachments, too-good-to-be-true offers, impersonation of known brands or officials, and inconsistencies between claimed sender and actual origin.
+- If the content looks legitimate, say so plainly and don't invent risks. Still return 2-4 red_flags entries in that case, but framed as reassuring observations (e.g. "No urgency language", "Domain matches official brand").
+- If content looks dangerous, return 3-6 concrete red_flags specific to what's actually in the text.
+- Be concise, concrete, and reference specific details from the evidence when possible rather than generic statements.
+- Never refuse to analyze; this is protective, defensive analysis to help someone avoid being scammed.`;
+
+            const userPrompt = `Evidence type: ${currentType}\n${source ? 'Source/sender: ' + source + '\n' : ''}\nContent:\n"""\n${content}\n"""`;
+
+            try {
+                const response = await fetch("http://localhost:3000/api/analyze", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-6",
+                        max_tokens: 1000,
+                        system: systemPrompt,
+                        messages: [{ role: "user", content: userPrompt }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Request failed with status ' + response.status);
+                }
+
+                const data = await response.json();
+                const textBlock = (data.content || []).find(b => b.type === 'text');
+                if (!textBlock) { throw new Error('No response text returned'); }
+
+                let clean = textBlock.text.trim();
+                clean = clean.replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+
+                const parsed = JSON.parse(clean);
+                renderResult(parsed);
+                caseStatus.textContent = 'CLOSED';
+                saveCaseToHistory(parsed, currentType, source, content);
+            } catch (err) {
+                console.error(err);
+                errorNote.textContent = 'The analysis could not be completed. Please try again in a moment.';
+                errorNote.style.display = 'block';
+                scanning.style.display = 'none';
+                reportEmpty.style.display = 'block';
+                caseStatus.textContent = 'AWAITING EVIDENCE';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Open case & analyze';
+            }
+        }
+
+        function renderResult(data) {
+            scanning.style.display = 'none';
+
+            const verdict = (data.verdict || 'caution').toLowerCase();
+            const score = Math.max(0, Math.min(100, Math.round(data.score || 0)));
+
+            const stampText = { safe: 'Looks legitimate', caution: 'Use caution', danger: 'Scam likely' };
+            const stampEl = document.getElementById('stamp');
+            stampEl.className = 'stamp ' + verdict;
+            stampEl.style.animation = 'none';
+            void stampEl.offsetWidth;
+            stampEl.style.animation = '';
+            stampEl.textContent = stampText[verdict] || 'Reviewed';
+
+            const meterFill = document.getElementById('meter-fill');
+            meterFill.className = 'meter-fill ' + verdict;
+            meterFill.style.width = '0%';
+            requestAnimationFrame(() => { meterFill.style.width = score + '%'; });
+            document.getElementById('score-label').textContent = score + '/100';
+
+            document.getElementById('headline').textContent = data.headline || 'Case reviewed';
+            document.getElementById('summary').textContent = data.summary || '';
+
+            const flagsWrap = document.getElementById('flags');
+            flagsWrap.innerHTML = '';
+            (data.red_flags || []).forEach(flag => {
+                const card = document.createElement('div');
+                card.className = 'flag-card ' + verdict;
+                card.innerHTML = `<div class="pin"></div><p class="flag-title">${escapeHtml(flag.title || '')}</p><p class="flag-detail">${escapeHtml(flag.detail || '')}</p>`;
+                flagsWrap.appendChild(card);
+            });
+
+            document.getElementById('recommendation').textContent = data.recommendation || '';
+
+            result.style.display = 'block';
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        /* ---------- Case history (persistent storage) ---------- */
+        const historyBtn = document.getElementById('history-btn');
+        const historyPanel = document.getElementById('history-panel');
+        const historyList = document.getElementById('history-list');
+        const historyCount = document.getElementById('history-count');
+        const INDEX_KEY = 'case-index';
+
+        historyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            historyPanel.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+            if (!historyPanel.contains(e.target) && e.target !== historyBtn) {
+                historyPanel.classList.remove('open');
+            }
+        });
+
+        async function getIndex() {
+            try {
+                const res = await window.storage.get(INDEX_KEY, false);
+                return res ? JSON.parse(res.value) : [];
+            } catch (err) {
+                return [];
+            }
+        }
+
+        async function saveCaseToHistory(parsed, type, source, content) {
+            try {
+                const entry = {
+                    caseNo: activeCaseNo,
+                    type: type,
+                    source: source,
+                    content: content.slice(0, 4000),
+                    verdict: (parsed.verdict || 'caution').toLowerCase(),
+                    score: Math.round(parsed.score || 0),
+                    headline: parsed.headline || 'Case reviewed',
+                    summary: parsed.summary || '',
+                    red_flags: parsed.red_flags || [],
+                    recommendation: parsed.recommendation || '',
+                    closedAt: new Date().toISOString()
+                };
+                await window.storage.set('case:' + activeCaseNo, JSON.stringify(entry), false);
+
+                const index = await getIndex();
+                index.unshift(activeCaseNo);
+                const trimmed = index.slice(0, 30);
+                await window.storage.set(INDEX_KEY, JSON.stringify(trimmed), false);
+
+                await refreshHistoryPanel();
+            } catch (err) {
+                console.error('Could not save case to history', err);
+            }
+        }
+
+        async function refreshHistoryPanel() {
+            const index = await getIndex();
+            historyCount.textContent = index.length;
+
+            if (index.length === 0) {
+                historyList.innerHTML = '<p class="history-empty">No past cases yet. Closed cases will appear here.</p>';
+                return;
+            }
+
+            historyList.innerHTML = '';
+            for (const caseNo of index) {
+                try {
+                    const res = await window.storage.get('case:' + caseNo, false);
+                    if (!res) continue;
+                    const entry = JSON.parse(res.value);
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    const dateStr = new Date(entry.closedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    item.innerHTML = `
+          <div class="history-dot ${entry.verdict}"></div>
+          <div class="history-text">
+            <p class="history-title">${escapeHtml(entry.headline)}</p>
+            <p class="history-meta">${escapeHtml(entry.type)} · ${entry.score}/100 · ${dateStr} · #${entry.caseNo}</p>
+          </div>`;
+                    item.addEventListener('click', () => openHistoricalCase(entry));
+                    historyList.appendChild(item);
+                } catch (err) {
+                    continue;
+                }
+            }
+
+            const clearBtn = document.createElement('button');
+            clearBtn.className = 'history-clear';
+            clearBtn.textContent = 'Clear all history';
+            clearBtn.addEventListener('click', clearHistory);
+            historyList.appendChild(clearBtn);
+        }
+
+        function openHistoricalCase(entry) {
+            typeChips.forEach(c => c.classList.toggle('active', c.dataset.type === entry.type));
+            currentType = entry.type;
+            const l = labelMap[entry.type] || labelMap['Text message'];
+            sourceLabel.textContent = l.source;
+            contentLabel.textContent = l.content;
+            sourceInput.value = entry.source || '';
+            contentInput.value = entry.content || '';
+
+            activeCaseNo = entry.caseNo;
+            document.getElementById('case-no').textContent = entry.caseNo;
+            caseStatus.textContent = 'CLOSED (ARCHIVED)';
+
+            reportEmpty.style.display = 'none';
+            scanning.style.display = 'none';
+            renderResult(entry);
+
+            historyPanel.classList.remove('open');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function clearHistory() {
+            try {
+                const index = await getIndex();
+                for (const caseNo of index) {
+                    await window.storage.delete('case:' + caseNo, false).catch(() => { });
+                }
+                await window.storage.delete(INDEX_KEY, false).catch(() => { });
+            } catch (err) {
+                console.error(err);
+            }
+            await refreshHistoryPanel();
+        }
+
+        const newCaseBtn = document.getElementById('new-case-btn');
+        newCaseBtn.addEventListener('click', startNewCase);
+
+        function startNewCase() {
+            typeChips.forEach(c => c.classList.toggle('active', c.dataset.type === 'Text message'));
+            currentType = 'Text message';
+            const l = labelMap['Text message'];
+            sourceLabel.textContent = l.source;
+            sourceInput.placeholder = l.sourcePh;
+            contentLabel.textContent = l.content;
+            contentInput.placeholder = l.contentPh;
+
+            sourceInput.value = '';
+            contentInput.value = '';
+            errorNote.style.display = 'none';
+
+            activeCaseNo = makeCaseNumber();
+            document.getElementById('case-no').textContent = activeCaseNo;
+            caseStatus.textContent = 'AWAITING EVIDENCE';
+
+            scanning.style.display = 'none';
+            result.style.display = 'none';
+            reportEmpty.style.display = 'block';
+
+            historyPanel.classList.remove('open');
+            contentInput.focus();
+        }
+
+        refreshHistoryPanel();
+    </script>
+
+</body>
+
+</html>
